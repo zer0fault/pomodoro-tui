@@ -1,0 +1,38 @@
+# Pomodoro TUI Default Configuration
+
+[timer]
+# Timer duration settings (in minutes)
+work_duration = 25
+short_break_duration = 5
+long_break_duration = 15
+pomodoros_until_long_break = 4
+
+# Auto-start settings
+auto_start_breaks = false
+auto_start_work = false
+
+[appearance]
+# Theme selection
+theme = "pomodoro-default"  # Default purple theme
+
+# Visual elements
+show_ascii_art = true
+ascii_art_style = "tomato"  # Options: tomato, minimal, fancy
+show_progress_bar = true
+show_session_count = true
+animations_enabled = true
+
+[audio]
+# Audio notification settings
+enabled = true
+volume = 0.7  # Range: 0.0 to 1.0
+
+# Sound files (relative to assets/sounds/)
+work_complete_sound = "complete.wav"
+break_complete_sound = "break.wav"
+
+[statistics]
+# Session tracking settings
+track_sessions = true
+save_history = true
+history_file = "~/.pomodoro-tui/history.json"
