@@ -41,7 +41,7 @@ class SessionCounter(Static):
         self.current = current
         self.total = total
         if current == 0:
-            self.update("[dim]Ready to begin[/dim]")
+            self.update("")
         else:
             self.update(f"[bold]Session {current} of {total}[/bold] before long break")
 
@@ -112,6 +112,16 @@ class PomodoroApp(App):
     Button {
         margin: 0 1;
         min-width: 10;
+        border: tall transparent;
+    }
+
+    Button:focus {
+        text-style: none;
+        border: tall $primary;
+    }
+
+    Button:hover {
+        border: tall $primary;
     }
 
     #help-text {
