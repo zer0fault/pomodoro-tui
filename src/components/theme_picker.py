@@ -2,59 +2,17 @@
 Theme picker widget for selecting and previewing themes.
 """
 from textual.app import ComposeResult
-from textual.containers import Container, Vertical, VerticalScroll
-from textual.message import Message
+from textual.containers import Container, Horizontal
 from textual.screen import ModalScreen
-from textual.widgets import Button, Label, Static
+from textual.widgets import Button, Static, OptionList
+from textual.widgets.option_list import Option
 from textual.binding import Binding
 
 from src.theme_manager import get_theme_manager
 
 
-class ThemeOption(Static):
-    """A single theme option in the picker."""
-
-    def __init__(self, theme_id: str, theme_name: str, is_current: bool = False):
-        """
-        Initialize theme option.
-
-        Args:
-            theme_id: Theme identifier
-            theme_name: Display name of theme
-            is_current: Whether this is the currently selected theme
-        """
-        super().__init__()
-        self.theme_id = theme_id
-        self.theme_name = theme_name
-        self.is_current = is_current
-
-    def compose(self) -> ComposeResult:
-        """Compose the theme option."""
-        current_marker = "● " if self.is_current else "  "
-        yield Label(f"{current_marker}{self.theme_name}")
-
-    def on_click(self) -> None:
-        """Handle click on theme option."""
-        # Post a custom message that the parent can handle
-        self.post_message(ThemeSelected(self.theme_id))
-
-
-class ThemeSelected(Message):
-    """Message posted when a theme is selected."""
-
-    def __init__(self, theme_id: str) -> None:
-        """
-        Initialize message.
-
-        Args:
-            theme_id: ID of selected theme
-        """
-        super().__init__()
-        self.theme_id = theme_id
-
-
 class ThemePicker(ModalScreen[str]):
-    """Modal screen for picking a theme."""
+    """Modal screen for picking a theme with full keyboard support."""
 
     CSS = """
     ThemePicker {
@@ -62,9 +20,8 @@ class ThemePicker(ModalScreen[str]):
     }
 
     #theme-picker-container {
-        width: 50;
+        width: 60;
         height: auto;
-        max-height: 20;
         background: $panel;
         border: thick $primary;
         padding: 1 2;
@@ -80,27 +37,16 @@ class ThemePicker(ModalScreen[str]):
 
     #theme-list {
         width: 100%;
-        height: auto;
-        max-height: 10;
+        height: 12;
         border: solid $primary;
-        padding: 1;
         margin: 1 0;
     }
 
-    ThemeOption {
+    #theme-picker-help {
         width: 100%;
-        height: auto;
-        padding: 0 1;
-        margin: 0;
-    }
-
-    ThemeOption:hover {
-        background: $primary-lighten-1;
-        color: $surface;
-    }
-
-    ThemeOption Label {
-        width: 100%;
+        text-align: center;
+        color: $text-muted;
+        margin-top: 1;
     }
 
     #theme-picker-buttons {
@@ -116,8 +62,8 @@ class ThemePicker(ModalScreen[str]):
     """
 
     BINDINGS = [
-        Binding("escape", "dismiss_picker", "Cancel", priority=True),
-        Binding("t", "dismiss_picker", "Close", priority=True),
+        Binding("escape", "cancel", "Cancel", priority=True),
+        Binding("enter", "apply", "Apply", priority=True),
     ]
 
     def __init__(self):
@@ -131,40 +77,60 @@ class ThemePicker(ModalScreen[str]):
         with Container(id="theme-picker-container"):
             yield Static("Theme Selector", id="theme-picker-title")
 
-            with VerticalScroll(id="theme-list"):
-                current_theme = self.theme_manager.get_current_theme()
-                for theme_id, theme_name in self.theme_manager.get_theme_list():
-                    is_current = (theme_id == current_theme)
-                    yield ThemeOption(theme_id, theme_name, is_current)
+            # Create OptionList with themes
+            option_list = OptionList(id="theme-list")
+            yield option_list
 
-            with Container(id="theme-picker-buttons"):
+            yield Static(
+                "[dim]↑↓[/dim] Navigate  •  [dim]Enter[/dim] Apply  •  [dim]Esc[/dim] Cancel",
+                id="theme-picker-help"
+            )
+
+            with Horizontal(id="theme-picker-buttons"):
                 yield Button("Apply", id="btn-apply", variant="success")
                 yield Button("Cancel", id="btn-cancel", variant="default")
 
-    def on_theme_selected(self, message: ThemeSelected) -> None:
-        """Handle theme selection."""
-        self.selected_theme = message.theme_id
+    def on_mount(self) -> None:
+        """Populate the option list when mounted."""
+        option_list = self.query_one("#theme-list", OptionList)
+        current_theme = self.theme_manager.get_current_theme()
 
-        # Update visual markers
-        for option in self.query(ThemeOption):
-            option.is_current = (option.theme_id == self.selected_theme)
-            option.remove_class("selected")
-            if option.is_current:
-                option.add_class("selected")
-            # Force re-compose to update marker
-            label = option.query_one(Label)
-            current_marker = "● " if option.is_current else "  "
-            label.update(f"{current_marker}{option.theme_name}")
+        # Add themes to option list
+        highlighted_index = 0
+        for index, (theme_id, theme_name) in enumerate(self.theme_manager.get_theme_list()):
+            # Mark current theme with ●
+            prefix = "● " if theme_id == current_theme else "  "
+            option_list.add_option(Option(f"{prefix}{theme_name}", id=theme_id))
+
+            if theme_id == current_theme:
+                highlighted_index = index
+
+        # Highlight the current theme
+        option_list.highlighted = highlighted_index
+
+    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
+        """Handle theme selection from option list."""
+        if event.option.id:
+            self.selected_theme = event.option.id
+            # Apply immediately when selected with Enter in the list
+            self.dismiss(self.selected_theme)
+
+    def on_option_list_option_highlighted(self, event: OptionList.OptionHighlighted) -> None:
+        """Update selected theme as user navigates with arrow keys."""
+        if event.option.id:
+            self.selected_theme = event.option.id
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press."""
         if event.button.id == "btn-apply":
-            # Apply the selected theme
-            self.dismiss(self.selected_theme)
+            self.action_apply()
         elif event.button.id == "btn-cancel":
-            # Cancel without applying
-            self.dismiss(None)
+            self.action_cancel()
 
-    def action_dismiss_picker(self) -> None:
-        """Dismiss the picker without applying changes."""
+    def action_apply(self) -> None:
+        """Apply the selected theme."""
+        self.dismiss(self.selected_theme)
+
+    def action_cancel(self) -> None:
+        """Cancel without applying changes."""
         self.dismiss(None)

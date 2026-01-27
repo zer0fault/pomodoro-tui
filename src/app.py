@@ -137,6 +137,7 @@ class PomodoroApp(App):
         super().__init__()
         self.config = get_config()
         self.theme_manager = get_theme_manager()
+        self._initial_theme_loaded = False
 
         # Initialize timer with config values
         work_duration = self.config.get("timer", "work_duration", 25)
@@ -157,6 +158,15 @@ class PomodoroApp(App):
         self.timer.on("session_complete", self._on_session_complete)
         self.timer.on("break_complete", self._on_break_complete)
         self.timer.on("cycle_complete", self._on_cycle_complete)
+
+        # Load initial theme CSS
+        theme_id = self.config.get("appearance", "theme", "pomodoro-default")
+        theme_css = self.theme_manager.load_theme(theme_id)
+        if theme_css:
+            # Combine BASE_CSS with theme CSS before app starts
+            self.__class__.CSS = self.BASE_CSS + "\n\n" + theme_css
+            self.theme_manager.set_current_theme(theme_id)
+            self._initial_theme_loaded = True
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -190,10 +200,6 @@ class PomodoroApp(App):
         self._update_timer_display()
         self._update_session_counter()
         self._update_buttons()
-
-        # Load theme from config after display is initialized
-        theme_id = self.config.get("appearance", "theme", "pomodoro-default")
-        self.call_after_refresh(self._load_theme, theme_id)
 
     def _update_timer_display(self) -> None:
         """Update the timer display with current time and phase."""
@@ -335,7 +341,7 @@ class PomodoroApp(App):
     # Theme management methods
     def _load_theme(self, theme_id: str) -> None:
         """
-        Load and apply a theme.
+        Load and apply a theme dynamically.
 
         Args:
             theme_id: ID of the theme to load
@@ -344,26 +350,29 @@ class PomodoroApp(App):
             # Load the theme CSS content
             theme_css = self.theme_manager.load_theme(theme_id)
             if not theme_css:
-                self.notify(f"Failed to load theme content: {theme_id}", severity="error")
+                self.notify(f"Failed to load theme: {theme_id}", severity="error")
                 return
 
-            # Update the CSS class variable with combined base + theme CSS
-            self.__class__.CSS = self.BASE_CSS + "\n\n" + theme_css
+            # Update the app's CSS class variable
+            combined_css = self.BASE_CSS + "\n\n" + theme_css
+            self.__class__.CSS = combined_css
 
-            # Refresh the CSS to apply changes
-            self.refresh_css()
+            # The key to making this work: refresh_css() reloads from the CSS class variable
+            self.refresh_css(animate=False)
 
+            # Update theme manager state
             self.theme_manager.set_current_theme(theme_id)
 
-            # Only show notification if not initial load
-            if hasattr(self, '_theme_loaded'):
-                self.notify(
-                    f"Theme changed to: {self.theme_manager.get_current_theme_name()}",
-                    severity="information"
-                )
-            self._theme_loaded = True
+            # Show notification
+            self.notify(
+                f"Theme: {self.theme_manager.get_current_theme_name()}",
+                severity="information",
+                timeout=2
+            )
         except Exception as e:
             self.notify(f"Error loading theme: {e}", severity="error")
+            import traceback
+            traceback.print_exc()
 
     def _switch_theme(self, theme_id: str) -> None:
         """
