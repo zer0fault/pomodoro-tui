@@ -49,9 +49,9 @@ class SessionCounter(Static):
 class PomodoroApp(App):
     """Main Pomodoro TUI application."""
 
-    # Minimal base CSS for layout structure
-    # Theme-specific styling loaded from external TCSS files
-    CSS = """
+    # Base CSS for layout structure
+    # Will be combined with theme CSS at runtime
+    BASE_CSS = """
     Screen {
         align: center middle;
     }
@@ -116,6 +116,9 @@ class PomodoroApp(App):
         margin-top: 2;
     }
     """
+
+    # CSS property will be set dynamically with BASE_CSS + theme CSS
+    CSS = BASE_CSS
 
     BINDINGS = [
         Binding("space", "toggle_timer", "Start/Pause", priority=True),
@@ -183,14 +186,14 @@ class PomodoroApp(App):
         # Load configuration
         self.config.load()
 
-        # Load theme from config
-        theme_id = self.config.get("appearance", "theme", "pomodoro-default")
-        self._load_theme(theme_id)
-
         # Initialize display
         self._update_timer_display()
         self._update_session_counter()
         self._update_buttons()
+
+        # Load theme from config after display is initialized
+        theme_id = self.config.get("appearance", "theme", "pomodoro-default")
+        self.call_after_refresh(self._load_theme, theme_id)
 
     def _update_timer_display(self) -> None:
         """Update the timer display with current time and phase."""
@@ -337,22 +340,30 @@ class PomodoroApp(App):
         Args:
             theme_id: ID of the theme to load
         """
-        theme_css = self.theme_manager.load_theme(theme_id)
-        if theme_css:
-            # Apply the theme CSS
-            self.stylesheet.clear()
-            self.stylesheet.add_source(self.CSS)  # Base structure CSS
-            self.stylesheet.add_source(theme_css)  # Theme-specific CSS
+        try:
+            # Load the theme CSS content
+            theme_css = self.theme_manager.load_theme(theme_id)
+            if not theme_css:
+                self.notify(f"Failed to load theme content: {theme_id}", severity="error")
+                return
+
+            # Update the CSS class variable with combined base + theme CSS
+            self.__class__.CSS = self.BASE_CSS + "\n\n" + theme_css
+
+            # Refresh the CSS to apply changes
+            self.refresh_css()
+
             self.theme_manager.set_current_theme(theme_id)
 
-            # Refresh the display
-            self.refresh()
-            self.notify(
-                f"Theme changed to: {self.theme_manager.get_current_theme_name()}",
-                severity="information"
-            )
-        else:
-            self.notify(f"Failed to load theme: {theme_id}", severity="error")
+            # Only show notification if not initial load
+            if hasattr(self, '_theme_loaded'):
+                self.notify(
+                    f"Theme changed to: {self.theme_manager.get_current_theme_name()}",
+                    severity="information"
+                )
+            self._theme_loaded = True
+        except Exception as e:
+            self.notify(f"Error loading theme: {e}", severity="error")
 
     def _switch_theme(self, theme_id: str) -> None:
         """
