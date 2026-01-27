@@ -12,6 +12,7 @@ from src.timer import PomodoroTimer, TimerState
 from src.components.timer_display import TimerDisplay
 from src.components.progress_bar import PomodoroProgressBar
 from src.components.theme_picker import ThemePicker
+from src.components.art_display import ArtDisplay
 from src.theme_manager import get_theme_manager
 from src.utils.constants import (
     APP_NAME,
@@ -114,6 +115,13 @@ class PomodoroApp(App):
         text-align: center;
         margin-top: 2;
     }
+
+    ArtDisplay {
+        width: 100%;
+        height: auto;
+        text-align: center;
+        margin-bottom: 1;
+    }
     """
 
     BINDINGS = [
@@ -175,6 +183,7 @@ class PomodoroApp(App):
         """Create child widgets for the app."""
         yield Header()
         yield Container(
+            ArtDisplay(id="art-display"),
             TimerDisplay(id="timer-display"),
             PomodoroProgressBar(id="progress-bar"),
             SessionCounter(id="session-counter"),
@@ -200,9 +209,22 @@ class PomodoroApp(App):
         self.config.load()
 
         # Initialize display
+        self._update_art_display()
         self._update_timer_display()
         self._update_session_counter()
         self._update_buttons()
+
+    def _update_art_display(self) -> None:
+        """Update the ASCII art display based on timer state."""
+        art_display = self.query_one("#art-display", ArtDisplay)
+        state = self.timer.get_state()
+
+        if state == TimerState.WORK:
+            art_display.load_art("focus")
+        elif state in [TimerState.SHORT_BREAK, TimerState.LONG_BREAK]:
+            art_display.load_art("break")
+        else:  # IDLE or PAUSED
+            art_display.load_art("tomato")
 
     def _update_timer_display(self) -> None:
         """Update the timer display with current time and phase."""
@@ -264,6 +286,7 @@ class PomodoroApp(App):
 
     def _on_state_change(self, old_state: TimerState, new_state: TimerState) -> None:
         """Called when timer state changes."""
+        self._update_art_display()
         self._update_timer_display()
         self._update_buttons()
 
