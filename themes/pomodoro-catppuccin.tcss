@@ -162,8 +162,8 @@ Button.-success {
 }
 
 Button.-success:hover {
-    background: lighten($success, 15%);
-    border: tall lighten($success, 15%);
+    background: #c0efc7;
+    border: tall #c0efc7;
 }
 
 Button.-error {
@@ -173,8 +173,8 @@ Button.-error {
 }
 
 Button.-error:hover {
-    background: lighten($error, 15%);
-    border: tall lighten($error, 15%);
+    background: #f6abc0;
+    border: tall #f6abc0;
 }
 
 Button.-primary {
