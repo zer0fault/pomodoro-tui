@@ -3,6 +3,7 @@ Theme picker widget for selecting and previewing themes.
 """
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, VerticalScroll
+from textual.message import Message
 from textual.screen import ModalScreen
 from textual.widgets import Button, Label, Static
 from textual.binding import Binding
@@ -38,7 +39,7 @@ class ThemeOption(Static):
         self.post_message(ThemeSelected(self.theme_id))
 
 
-class ThemeSelected(Static.Changed):
+class ThemeSelected(Message):
     """Message posted when a theme is selected."""
 
     def __init__(self, theme_id: str) -> None:
@@ -139,13 +140,6 @@ class ThemePicker(ModalScreen[str]):
             with Container(id="theme-picker-buttons"):
                 yield Button("Apply", id="btn-apply", variant="success")
                 yield Button("Cancel", id="btn-cancel", variant="default")
-
-    def on_theme_option_click(self, event: ThemeOption.Changed) -> None:
-        """Handle theme option selection."""
-        # Update visual selection
-        for option in self.query(ThemeOption):
-            option.is_current = (option.theme_id == event.control.theme_id)
-            option.refresh()
 
     def on_theme_selected(self, message: ThemeSelected) -> None:
         """Handle theme selection."""
