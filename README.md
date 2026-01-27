@@ -99,8 +99,8 @@ This project is under active development following a phased implementation plan.
 - ✅ Phase 2: Core Timer Logic - **COMPLETED**
 - ✅ Phase 3: Basic UI Components - **COMPLETED & TESTED** ✨
 - ✅ Phase 4: Theming System - **COMPLETED & TESTED** 🎨
-- ⏳ Phase 5: ASCII Art & Visual Effects
-- ⏳ Phase 6: Settings Panel
+- ✅ Phase 5: ASCII Art & Visual Effects
+- ✅ Phase 6: Settings Panel
 - ⏳ Phase 7: Audio Notifications
 - ⏳ Phase 8: Statistics & Session Tracking
 
