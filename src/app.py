@@ -302,7 +302,7 @@ class PomodoroApp(App):
 
         # Show notification for state changes
         if new_state == TimerState.WORK:
-            self.notify("🍅 Focus time! Let's get to work.", severity="information")
+            self.notify("Focus time! Let's get to work.", severity="information")
         elif new_state.value in ["SHORT_BREAK", "LONG_BREAK"]:
             break_type = "short" if new_state.value == "SHORT_BREAK" else "long"
             self.notify(f"☕ Time for a {break_type} break!", severity="information")
