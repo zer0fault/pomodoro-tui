@@ -76,7 +76,7 @@ class PomodoroTimer:
         self._timer_thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
         self._running = False
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()  # Use RLock for reentrant locking
 
         # Event callbacks
         self._callbacks: Dict[str, list[Callable]] = {

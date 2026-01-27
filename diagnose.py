@@ -19,30 +19,30 @@ try:
     from src.app import PomodoroApp
     from src.timer import PomodoroTimer
     from src.components.timer_display import TimerDisplay
-    print("   ✓ All imports successful")
+    print("   [OK] All imports successful")
 except Exception as e:
-    print(f"   ✗ Import failed: {e}")
+    print(f"   [FAIL] Import failed: {e}")
     sys.exit(1)
 
 # Test 2: Create timer
 print("\n2. Testing timer creation...")
 try:
     timer = PomodoroTimer(work_duration=1)
-    print(f"   ✓ Timer created, state: {timer.get_state()}")
+    print(f"   [OK] Timer created, state: {timer.get_state()}")
 except Exception as e:
-    print(f"   ✗ Timer creation failed: {e}")
+    print(f"   [FAIL] Timer creation failed: {e}")
     sys.exit(1)
 
 # Test 3: Timer start
 print("\n3. Testing timer start...")
 try:
     result = timer.start()
-    print(f"   ✓ Timer start result: {result}")
-    print(f"   ✓ Timer state: {timer.get_state()}")
-    print(f"   ✓ Remaining: {timer.get_remaining_time()}s")
+    print(f"   [OK] Timer start result: {result}")
+    print(f"   [OK] Timer state: {timer.get_state()}")
+    print(f"   [OK] Remaining: {timer.get_remaining_time()}s")
     timer.stop()
 except Exception as e:
-    print(f"   ✗ Timer start failed: {e}")
+    print(f"   [FAIL] Timer start failed: {e}")
     import traceback
     traceback.print_exc()
     sys.exit(1)
@@ -51,11 +51,11 @@ except Exception as e:
 print("\n4. Testing app creation...")
 try:
     app = PomodoroApp()
-    print(f"   ✓ App created")
-    print(f"   ✓ App title: {app.TITLE}")
-    print(f"   ✓ Timer state: {app.timer.get_state()}")
+    print(f"   [OK] App created")
+    print(f"   [OK] App title: {app.TITLE}")
+    print(f"   [OK] Timer state: {app.timer.get_state()}")
 except Exception as e:
-    print(f"   ✗ App creation failed: {e}")
+    print(f"   [FAIL] App creation failed: {e}")
     import traceback
     traceback.print_exc()
     sys.exit(1)
@@ -64,11 +64,11 @@ except Exception as e:
 print("\n5. Checking key bindings...")
 try:
     bindings = app.BINDINGS
-    print(f"   ✓ Found {len(bindings)} bindings:")
+    print(f"   [OK] Found {len(bindings)} bindings:")
     for binding in bindings:
         print(f"      - {binding.key} -> {binding.action} ({binding.description})")
 except Exception as e:
-    print(f"   ✗ Binding check failed: {e}")
+    print(f"   [FAIL] Binding check failed: {e}")
 
 # Test 6: Test action method directly
 print("\n6. Testing action_toggle_timer directly...")
@@ -83,13 +83,13 @@ try:
     print(f"   Remaining: {app.timer.get_remaining_time()}s")
 
     if initial_state != after_state:
-        print("   ✓ Action method works!")
+        print("   [OK] Action method works!")
     else:
-        print("   ✗ State didn't change")
+        print("   [FAIL] State didn't change")
 
     app.timer.stop()
 except Exception as e:
-    print(f"   ✗ Action test failed: {e}")
+    print(f"   [FAIL] Action test failed: {e}")
     import traceback
     traceback.print_exc()
 
