@@ -10,6 +10,7 @@ from textual.binding import Binding
 
 from src.config import get_config
 from src.timer import PomodoroTimer, TimerState
+from src.utils.helpers import minutes_to_seconds
 from src.components.timer_display import TimerDisplay
 from src.components.theme_picker import ThemePicker
 from src.components.settings_panel import SettingsPanel
@@ -379,10 +380,10 @@ class PomodoroApp(App):
         long_break = self.config.get("timer", "long_break_duration", 15)
         pomodoros_until_long = self.config.get("timer", "pomodoros_until_long_break", 4)
 
-        # Update timer with new settings
-        self.timer.work_duration = work_duration
-        self.timer.short_break_duration = short_break
-        self.timer.long_break_duration = long_break
+        # Update timer with new settings (convert minutes to seconds)
+        self.timer.work_duration = minutes_to_seconds(work_duration)
+        self.timer.short_break_duration = minutes_to_seconds(short_break)
+        self.timer.long_break_duration = minutes_to_seconds(long_break)
         self.timer.pomodoros_until_long_break = pomodoros_until_long
 
     def action_quit(self) -> None:
