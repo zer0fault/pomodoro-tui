@@ -10,7 +10,6 @@ from textual.binding import Binding
 from src.config import get_config
 from src.timer import PomodoroTimer, TimerState
 from src.components.timer_display import TimerDisplay
-from src.components.progress_bar import PomodoroProgressBar
 from src.components.theme_picker import ThemePicker
 from src.theme_manager import get_theme_manager
 from src.utils.constants import (
@@ -67,6 +66,16 @@ class PomodoroApp(App):
         padding: 2 4;
         text-align: center;
         margin-bottom: 1;
+        border: heavy $primary;
+        border-title-align: center;
+    }
+
+    TimerDisplay.timer-work {
+        border: heavy $error;
+    }
+
+    TimerDisplay.timer-break {
+        border: heavy $success;
     }
 
     #timer-time {
@@ -84,36 +93,6 @@ class PomodoroApp(App):
         height: 1;
         width: 100%;
         margin-top: 1;
-    }
-
-    PomodoroProgressBar {
-        width: 100%;
-        margin: 1 0;
-        height: 1;
-    }
-
-    PomodoroProgressBar > .bar--bar {
-        color: $success;
-    }
-
-    PomodoroProgressBar > .bar--complete {
-        color: $success-darken-1;
-    }
-
-    PomodoroProgressBar.work > .bar--bar {
-        color: $error;
-    }
-
-    PomodoroProgressBar.work > .bar--complete {
-        color: $error-darken-1;
-    }
-
-    PomodoroProgressBar.break > .bar--bar {
-        color: $success;
-    }
-
-    PomodoroProgressBar.break > .bar--complete {
-        color: $success-darken-1;
     }
 
     SessionCounter {
@@ -201,7 +180,6 @@ class PomodoroApp(App):
         yield Header()
         yield Container(
             TimerDisplay(id="timer-display"),
-            PomodoroProgressBar(id="progress-bar"),
             SessionCounter(id="session-counter"),
             Horizontal(
                 Button("Start", id="btn-start", variant="success"),
@@ -234,13 +212,6 @@ class PomodoroApp(App):
         timer_display = self.query_one("#timer-display", TimerDisplay)
         timer_display.set_time(self.timer.get_remaining_time())
         timer_display.set_phase(self.timer.get_state().value)
-
-    def _update_progress_bar(self) -> None:
-        """Update the progress bar."""
-        progress_bar = self.query_one("#progress-bar", PomodoroProgressBar)
-        progress = self.timer.get_progress()
-        progress_bar.set_progress(progress)
-        progress_bar.set_phase(self.timer.get_state().value)
 
     def _update_session_counter(self) -> None:
         """Update the session counter."""
@@ -286,7 +257,6 @@ class PomodoroApp(App):
         # Only update if not paused (should not receive ticks when paused, but double-check)
         if self.timer.get_state() != TimerState.PAUSED:
             self._update_timer_display()
-            self._update_progress_bar()
 
     def _on_state_change(self, old_state: TimerState, new_state: TimerState) -> None:
         """Called when timer state changes."""
@@ -342,7 +312,6 @@ class PomodoroApp(App):
         if self.timer.get_state() != TimerState.IDLE:
             self.timer.stop()
             self._update_timer_display()
-            self._update_progress_bar()
             self._update_session_counter()
             self.notify("Timer stopped", severity="warning")
 
