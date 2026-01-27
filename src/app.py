@@ -12,6 +12,7 @@ from src.config import get_config
 from src.timer import PomodoroTimer, TimerState
 from src.components.timer_display import TimerDisplay
 from src.components.theme_picker import ThemePicker
+from src.components.settings_panel import SettingsPanel
 from src.theme_manager import get_theme_manager
 from src.utils.constants import (
     APP_NAME,
@@ -362,7 +363,12 @@ class PomodoroApp(App):
 
     def action_config(self) -> None:
         """Open configuration/settings."""
-        self.notify("Settings panel coming in Phase 6!", severity="information")
+        def handle_settings_result(saved: bool) -> None:
+            """Handle settings panel result."""
+            if saved:
+                self.notify("Settings saved", severity="information")
+
+        self.push_screen(SettingsPanel(), handle_settings_result)
 
     def action_quit(self) -> None:
         """Quit the application."""
