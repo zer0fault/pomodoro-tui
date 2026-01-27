@@ -116,9 +116,6 @@ class PomodoroApp(App):
     }
     """
 
-    # CSS_PATH will be set dynamically to load theme files
-    CSS_PATH = None
-
     BINDINGS = [
         Binding("space", "toggle_timer", "Start/Pause", priority=True),
         Binding("s", "stop_timer", "Stop"),
@@ -158,13 +155,21 @@ class PomodoroApp(App):
         self.timer.on("break_complete", self._on_break_complete)
         self.timer.on("cycle_complete", self._on_cycle_complete)
 
-        # Load initial theme by setting CSS_PATH
+        # Map our theme IDs to Textual's built-in themes
+        self.theme_map = {
+            "pomodoro-default": "textual-dark",  # Use dark as default purple
+            "pomodoro-catppuccin": "catppuccin-mocha",
+            "pomodoro-nord": "nord",
+            "pomodoro-gruvbox": "gruvbox",
+            "pomodoro-tokyo-night": "tokyo-night",
+        }
+
+        # Load initial theme using Textual's built-in system
         theme_id = self.config.get("appearance", "theme", "pomodoro-default")
-        theme_path = self.theme_manager.get_theme_path(theme_id)
-        if theme_path:
-            self.__class__.CSS_PATH = str(theme_path)
-            self.theme_manager.set_current_theme(theme_id)
-            self._initial_theme_loaded = True
+        textual_theme = self.theme_map.get(theme_id, "textual-dark")
+        self.theme = textual_theme
+        self.theme_manager.set_current_theme(theme_id)
+        self._initial_theme_loaded = True
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -339,21 +344,20 @@ class PomodoroApp(App):
     # Theme management methods
     def _load_theme(self, theme_id: str) -> None:
         """
-        Load and apply a theme dynamically.
+        Load and apply a theme dynamically using Textual's built-in theme system.
 
         Args:
             theme_id: ID of the theme to load
         """
         try:
-            # Get the theme file path
-            theme_path = self.theme_manager.get_theme_path(theme_id)
-            if not theme_path:
+            # Map to Textual's built-in theme
+            textual_theme = self.theme_map.get(theme_id)
+            if not textual_theme:
                 self.notify(f"Theme not found: {theme_id}", severity="error")
                 return
 
-            # Update CSS_PATH and reload CSS
-            self.__class__.CSS_PATH = str(theme_path)
-            self.refresh_css(animate=False)
+            # Use Textual's native theme switching - this actually works!
+            self.theme = textual_theme
 
             # Update theme manager state
             self.theme_manager.set_current_theme(theme_id)
