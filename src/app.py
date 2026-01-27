@@ -89,6 +89,31 @@ class PomodoroApp(App):
     PomodoroProgressBar {
         width: 100%;
         margin: 1 0;
+        height: 1;
+    }
+
+    PomodoroProgressBar > .bar--bar {
+        color: $success;
+    }
+
+    PomodoroProgressBar > .bar--complete {
+        color: $success-darken-1;
+    }
+
+    PomodoroProgressBar.work > .bar--bar {
+        color: $error;
+    }
+
+    PomodoroProgressBar.work > .bar--complete {
+        color: $error-darken-1;
+    }
+
+    PomodoroProgressBar.break > .bar--bar {
+        color: $success;
+    }
+
+    PomodoroProgressBar.break > .bar--complete {
+        color: $success-darken-1;
     }
 
     SessionCounter {
@@ -215,6 +240,7 @@ class PomodoroApp(App):
         progress_bar = self.query_one("#progress-bar", PomodoroProgressBar)
         progress = self.timer.get_progress()
         progress_bar.set_progress(progress)
+        progress_bar.set_phase(self.timer.get_state().value)
 
     def _update_session_counter(self) -> None:
         """Update the session counter."""

@@ -36,6 +36,22 @@ class PomodoroProgressBar(ProgressBar):
         """
         self.progress_value = max(0.0, min(1.0, progress))
 
+    def set_phase(self, phase: str) -> None:
+        """
+        Set visual phase for styling.
+
+        Args:
+            phase: Timer phase ("WORK", "SHORT_BREAK", "LONG_BREAK", etc.)
+        """
+        # Remove existing phase classes
+        self.remove_class("work", "break")
+
+        # Add appropriate class based on phase
+        if phase == "WORK":
+            self.add_class("work")
+        elif phase in ["SHORT_BREAK", "LONG_BREAK"]:
+            self.add_class("break")
+
     def get_progress_percentage(self) -> int:
         """
         Get current progress as percentage.
