@@ -11,6 +11,7 @@ from textual.binding import Binding
 from src.config import get_config
 from src.timer import PomodoroTimer, TimerState
 from src.utils.helpers import minutes_to_seconds
+from src.audio import get_audio_manager
 from src.components.timer_display import TimerDisplay
 from src.components.theme_picker import ThemePicker
 from src.components.settings_panel import SettingsPanel
@@ -160,6 +161,7 @@ class PomodoroApp(App):
         super().__init__()
         self.config = get_config()
         self.theme_manager = get_theme_manager()
+        self.audio_manager = get_audio_manager()
         self._initial_theme_loaded = False
 
         # Initialize timer with config values
@@ -309,6 +311,7 @@ class PomodoroApp(App):
 
     def _on_session_complete(self, pomodoro_num: int) -> None:
         """Called when a work session completes."""
+        self.audio_manager.play_work_complete()
         self.notify(
             f"✅ Pomodoro #{pomodoro_num} completed!",
             severity="information",
@@ -318,6 +321,7 @@ class PomodoroApp(App):
 
     def _on_break_complete(self, break_type: TimerState) -> None:
         """Called when a break completes."""
+        self.audio_manager.play_break_complete()
         self.notify("✨ Break finished! Ready for another session?", severity="information")
         self._update_timer_display()
 
