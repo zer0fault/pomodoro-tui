@@ -1,6 +1,7 @@
 """
 Main Textual application for the Pomodoro TUI.
 """
+from pathlib import Path
 from textual.app import App, ComposeResult
 from textual.containers import Container, Vertical, Horizontal, Center
 from textual.widgets import Header, Footer, Static, Button
@@ -10,6 +11,8 @@ from src.config import get_config
 from src.timer import PomodoroTimer, TimerState
 from src.components.timer_display import TimerDisplay
 from src.components.progress_bar import PomodoroProgressBar
+from src.components.theme_picker import ThemePicker
+from src.theme_manager import get_theme_manager
 from src.utils.constants import (
     APP_NAME,
     STATE_IDLE,
@@ -46,10 +49,11 @@ class SessionCounter(Static):
 class PomodoroApp(App):
     """Main Pomodoro TUI application."""
 
+    # Minimal base CSS for layout structure
+    # Theme-specific styling loaded from external TCSS files
     CSS = """
     Screen {
         align: center middle;
-        background: $surface;
     }
 
     #main-container {
@@ -61,8 +65,6 @@ class PomodoroApp(App):
     TimerDisplay {
         width: 100%;
         height: auto;
-        border: heavy $primary;
-        background: $panel;
         padding: 2 4;
         text-align: center;
         margin-bottom: 1;
@@ -83,26 +85,6 @@ class PomodoroApp(App):
         height: 1;
         width: 100%;
         margin-top: 1;
-    }
-
-    .timer-work {
-        border: heavy $error;
-        color: $error;
-    }
-
-    .timer-break {
-        border: heavy $success;
-        color: $success;
-    }
-
-    .timer-idle {
-        border: heavy $primary;
-        color: $text;
-    }
-
-    .timer-paused {
-        border: heavy $warning;
-        color: $warning;
     }
 
     PomodoroProgressBar {
@@ -132,7 +114,6 @@ class PomodoroApp(App):
         width: 100%;
         text-align: center;
         margin-top: 2;
-        color: $text-muted;
     }
     """
 
@@ -140,6 +121,7 @@ class PomodoroApp(App):
         Binding("space", "toggle_timer", "Start/Pause", priority=True),
         Binding("s", "stop_timer", "Stop"),
         Binding("n", "skip_phase", "Skip"),
+        Binding("t", "toggle_theme_picker", "Theme", priority=True),
         Binding("q", "quit", "Quit", priority=True),
         Binding("question_mark", "help", "Help"),
         Binding("c", "config", "Settings"),
@@ -151,6 +133,7 @@ class PomodoroApp(App):
         """Initialize the application."""
         super().__init__()
         self.config = get_config()
+        self.theme_manager = get_theme_manager()
 
         # Initialize timer with config values
         work_duration = self.config.get("timer", "work_duration", 25)
@@ -188,7 +171,7 @@ class PomodoroApp(App):
             ),
             Static(
                 "[dim]Space[/dim] Start/Pause  •  [dim]S[/dim] Stop  •  "
-                "[dim]N[/dim] Skip  •  [dim]C[/dim] Settings  •  [dim]Q[/dim] Quit",
+                "[dim]N[/dim] Skip  •  [dim]T[/dim] Theme  •  [dim]Q[/dim] Quit",
                 id="help-text"
             ),
             id="main-container"
@@ -200,13 +183,9 @@ class PomodoroApp(App):
         # Load configuration
         self.config.load()
 
-        # Set theme if available
-        theme = self.config.get("appearance", "theme", "textual-dark")
-        try:
-            self.theme = theme
-        except Exception:
-            # Theme not found, use default
-            self.theme = "textual-dark"
+        # Load theme from config
+        theme_id = self.config.get("appearance", "theme", "pomodoro-default")
+        self._load_theme(theme_id)
 
         # Initialize display
         self._update_timer_display()
@@ -349,6 +328,53 @@ class PomodoroApp(App):
         if self.timer.get_state() != TimerState.IDLE:
             self.timer.stop()
         self.exit()
+
+    # Theme management methods
+    def _load_theme(self, theme_id: str) -> None:
+        """
+        Load and apply a theme.
+
+        Args:
+            theme_id: ID of the theme to load
+        """
+        theme_css = self.theme_manager.load_theme(theme_id)
+        if theme_css:
+            # Apply the theme CSS
+            self.stylesheet.clear()
+            self.stylesheet.add_source(self.CSS)  # Base structure CSS
+            self.stylesheet.add_source(theme_css)  # Theme-specific CSS
+            self.theme_manager.set_current_theme(theme_id)
+
+            # Refresh the display
+            self.refresh()
+            self.notify(
+                f"Theme changed to: {self.theme_manager.get_current_theme_name()}",
+                severity="information"
+            )
+        else:
+            self.notify(f"Failed to load theme: {theme_id}", severity="error")
+
+    def _switch_theme(self, theme_id: str) -> None:
+        """
+        Switch to a new theme and save to config.
+
+        Args:
+            theme_id: ID of the theme to switch to
+        """
+        self._load_theme(theme_id)
+
+        # Save to config
+        self.config.set("appearance", "theme", theme_id)
+        self.config.save()
+
+    def action_toggle_theme_picker(self) -> None:
+        """Open the theme picker."""
+        def handle_theme_selection(selected_theme: str | None) -> None:
+            """Handle theme selection from picker."""
+            if selected_theme:
+                self._switch_theme(selected_theme)
+
+        self.push_screen(ThemePicker(), handle_theme_selection)
 
     # Button event handlers
     def on_button_pressed(self, event: Button.Pressed) -> None:

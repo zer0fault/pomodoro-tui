@@ -1,0 +1,220 @@
+/*
+ * Pomodoro Nord Theme
+ * Cool blues and muted purples inspired by the Nord color palette
+ * https://www.nordtheme.com/
+ */
+
+/* Nord Design Variables */
+$primary: #b48ead;       /* Aurora Purple */
+$primary-darken-1: #8a6891;
+$primary-darken-2: #6b516f;
+$primary-lighten-1: #c9a2c3;
+$primary-lighten-2: #ddb8d8;
+
+$secondary: #88c0d0;     /* Frost Cyan */
+$accent: #8fbcbb;        /* Frost Teal */
+$surface: #2e3440;       /* Polar Night 0 */
+$panel: #3b4252;         /* Polar Night 1 */
+$background: #2e3440;    /* Polar Night 0 */
+
+$text: #eceff4;          /* Snow Storm 2 */
+$text-muted: #d8dee9;    /* Snow Storm 1 */
+$text-disabled: #4c566a; /* Polar Night 3 */
+
+$success: #a3be8c;       /* Aurora Green */
+$warning: #ebcb8b;       /* Aurora Yellow */
+$error: #bf616a;         /* Aurora Red */
+
+/* Additional Nord colors */
+$blue: #81a1c1;          /* Frost Blue */
+$darkblue: #5e81ac;      /* Frost Dark Blue */
+$orange: #d08770;        /* Aurora Orange */
+
+/* Screen Base */
+Screen {
+    background: $surface;
+    color: $text;
+}
+
+/* Header Styling */
+Header {
+    background: $panel;
+    color: $text;
+    text-style: bold;
+}
+
+Header .header--title {
+    color: $primary;
+}
+
+/* Footer Styling */
+Footer {
+    background: $panel;
+    color: $text-muted;
+}
+
+Footer Key {
+    background: $primary;
+    color: $surface;
+}
+
+/* Main Container */
+#main-container {
+    background: $background;
+}
+
+/* Timer Display Widget */
+TimerDisplay {
+    background: $panel;
+    border: heavy $primary;
+    color: $text;
+}
+
+/* Timer state-specific styling */
+.timer-idle {
+    border: heavy $secondary;
+    color: $text;
+}
+
+.timer-work {
+    border: heavy $error;
+    color: $error;
+}
+
+.timer-break {
+    border: heavy $success;
+    color: $success;
+}
+
+.timer-paused {
+    border: heavy $warning;
+    color: $warning;
+}
+
+#timer-time {
+    color: $text;
+    text-style: bold;
+}
+
+#timer-phase {
+    color: $primary;
+    text-style: italic;
+}
+
+/* Progress Bar */
+PomodoroProgressBar {
+    background: $panel;
+}
+
+PomodoroProgressBar > .bar--bar {
+    color: $primary;
+}
+
+PomodoroProgressBar > .bar--complete {
+    color: $secondary;
+}
+
+PomodoroProgressBar > .bar--indeterminate {
+    color: $accent;
+}
+
+/* Session Counter */
+SessionCounter {
+    background: transparent;
+    color: $text;
+}
+
+/* Buttons */
+Button {
+    background: $primary;
+    color: $surface;
+    border: tall $primary-lighten-1;
+    text-style: bold;
+}
+
+Button:hover {
+    background: $primary-lighten-1;
+    color: $surface;
+    border: tall $primary-lighten-2;
+}
+
+Button:focus {
+    border: tall $secondary;
+}
+
+Button.-active {
+    background: $primary-darken-1;
+}
+
+Button:disabled {
+    background: $text-disabled;
+    color: $text-muted;
+    border: tall $text-disabled;
+}
+
+/* Button Variants */
+Button.-success {
+    background: $success;
+    border: tall $success;
+    color: $surface;
+}
+
+Button.-success:hover {
+    background: lighten($success, 15%);
+    border: tall lighten($success, 15%);
+}
+
+Button.-error {
+    background: $error;
+    border: tall $error;
+    color: $text;
+}
+
+Button.-error:hover {
+    background: lighten($error, 15%);
+    border: tall lighten($error, 15%);
+}
+
+Button.-primary {
+    background: $blue;
+    border: tall $blue;
+    color: $surface;
+}
+
+Button.-primary:hover {
+    background: $darkblue;
+    border: tall $darkblue;
+}
+
+Button.-default {
+    background: $text-disabled;
+    border: tall $text-disabled;
+    color: $text;
+}
+
+Button.-default:hover {
+    background: lighten($text-disabled, 15%);
+    border: tall lighten($text-disabled, 15%);
+}
+
+/* Help Text */
+#help-text {
+    color: $text-muted;
+    background: transparent;
+}
+
+/* Control Buttons Container */
+#control-buttons {
+    background: transparent;
+}
+
+/* Scrollbars */
+Vertical > ScrollBar {
+    background: $panel;
+    color: $primary;
+}
+
+Horizontal > ScrollBar {
+    background: $panel;
+    color: $primary;
+}

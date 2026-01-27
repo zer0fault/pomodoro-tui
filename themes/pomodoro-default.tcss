@@ -1,0 +1,214 @@
+/*
+ * Pomodoro Default Theme - Purple
+ * Deep purple theme with lavender accents for a calming, focused experience
+ */
+
+/* Design Variables */
+$primary: #9d4edd;
+$primary-darken-1: #7b3ab8;
+$primary-darken-2: #5a2a8a;
+$primary-lighten-1: #b86ef4;
+$primary-lighten-2: #d4a5ff;
+
+$secondary: #c77dff;
+$accent: #e0aaff;
+$surface: #10002b;
+$panel: #1a0040;
+$background: #240046;
+
+$text: #f0e6ff;
+$text-muted: #b8a8d1;
+$text-disabled: #6b5b7d;
+
+$success: #06d6a0;
+$warning: #ffd60a;
+$error: #ef476f;
+
+/* Screen Base */
+Screen {
+    background: $surface;
+    color: $text;
+}
+
+/* Header Styling */
+Header {
+    background: $primary-darken-2;
+    color: $text;
+    text-style: bold;
+}
+
+Header .header--title {
+    color: $accent;
+}
+
+/* Footer Styling */
+Footer {
+    background: $primary-darken-2;
+    color: $text-muted;
+}
+
+Footer Key {
+    background: $primary;
+    color: $text;
+}
+
+/* Main Container */
+#main-container {
+    background: $background;
+}
+
+/* Timer Display Widget */
+TimerDisplay {
+    background: $panel;
+    border: heavy $primary;
+    color: $text;
+}
+
+/* Timer state-specific styling */
+.timer-idle {
+    border: heavy $primary;
+    color: $text;
+}
+
+.timer-work {
+    border: heavy $error;
+    color: $error;
+}
+
+.timer-break {
+    border: heavy $success;
+    color: $success;
+}
+
+.timer-paused {
+    border: heavy $warning;
+    color: $warning;
+}
+
+#timer-time {
+    color: $text;
+    text-style: bold;
+}
+
+#timer-phase {
+    color: $accent;
+    text-style: italic;
+}
+
+/* Progress Bar */
+PomodoroProgressBar {
+    background: $panel;
+}
+
+PomodoroProgressBar > .bar--bar {
+    color: $primary;
+}
+
+PomodoroProgressBar > .bar--complete {
+    color: $primary-lighten-1;
+}
+
+PomodoroProgressBar > .bar--indeterminate {
+    color: $primary-lighten-2;
+}
+
+/* Session Counter */
+SessionCounter {
+    background: transparent;
+    color: $text;
+}
+
+/* Buttons */
+Button {
+    background: $primary;
+    color: $text;
+    border: tall $primary-lighten-1;
+    text-style: bold;
+}
+
+Button:hover {
+    background: $primary-lighten-1;
+    color: $text;
+    border: tall $primary-lighten-2;
+}
+
+Button:focus {
+    border: tall $accent;
+}
+
+Button.-active {
+    background: $primary-darken-1;
+}
+
+Button:disabled {
+    background: $primary-darken-2;
+    color: $text-disabled;
+    border: tall $primary-darken-2;
+}
+
+/* Button Variants */
+Button.-success {
+    background: $success;
+    border: tall $success;
+    color: #000;
+}
+
+Button.-success:hover {
+    background: lighten($success, 15%);
+    border: tall lighten($success, 15%);
+}
+
+Button.-error {
+    background: $error;
+    border: tall $error;
+    color: $text;
+}
+
+Button.-error:hover {
+    background: lighten($error, 15%);
+    border: tall lighten($error, 15%);
+}
+
+Button.-primary {
+    background: #2196f3;
+    border: tall #2196f3;
+    color: $text;
+}
+
+Button.-primary:hover {
+    background: lighten(#2196f3, 15%);
+    border: tall lighten(#2196f3, 15%);
+}
+
+Button.-default {
+    background: #666;
+    border: tall #666;
+    color: $text;
+}
+
+Button.-default:hover {
+    background: #888;
+    border: tall #888;
+}
+
+/* Help Text */
+#help-text {
+    color: $text-muted;
+    background: transparent;
+}
+
+/* Control Buttons Container */
+#control-buttons {
+    background: transparent;
+}
+
+/* Scrollbars */
+Vertical > ScrollBar {
+    background: $panel;
+    color: $primary;
+}
+
+Horizontal > ScrollBar {
+    background: $panel;
+    color: $primary;
+}
