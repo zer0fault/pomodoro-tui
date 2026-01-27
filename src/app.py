@@ -4,7 +4,8 @@ Main Textual application for the Pomodoro TUI.
 from pathlib import Path
 from textual.app import App, ComposeResult
 from textual.containers import Container, Vertical, Horizontal, Center
-from textual.widgets import Header, Footer, Static, Button
+from textual.widgets import Header, Static, Button
+from datetime import datetime
 from textual.binding import Binding
 
 from src.config import get_config
@@ -118,6 +119,16 @@ class PomodoroApp(App):
         text-align: center;
         margin-top: 2;
     }
+
+    #status-bar {
+        dock: bottom;
+        width: 100%;
+        height: 1;
+        background: $panel;
+        color: $text-muted;
+        text-align: center;
+        padding: 0 1;
+    }
     """
 
     BINDINGS = [
@@ -195,7 +206,7 @@ class PomodoroApp(App):
             ),
             id="main-container"
         )
-        yield Footer()
+        yield Static("", id="status-bar")
 
     def on_mount(self) -> None:
         """Called when app is mounted."""
@@ -206,6 +217,10 @@ class PomodoroApp(App):
         self._update_timer_display()
         self._update_session_counter()
         self._update_buttons()
+        self._update_status_bar()
+
+        # Update status bar every minute
+        self.set_interval(60, self._update_status_bar)
 
     def _update_timer_display(self) -> None:
         """Update the timer display with current time and phase."""
@@ -221,6 +236,16 @@ class PomodoroApp(App):
             info["current_pomodoro"],
             info["pomodoros_until_long_break"]
         )
+
+    def _update_status_bar(self) -> None:
+        """Update the status bar with current local time."""
+        try:
+            status_bar = self.query_one("#status-bar", Static)
+            current_time = datetime.now().strftime("%I:%M %p")
+            status_bar.update(f"Local Time: {current_time}")
+        except Exception:
+            # Status bar might not be mounted yet
+            pass
 
     def _update_buttons(self) -> None:
         """Update button states based on timer state."""
