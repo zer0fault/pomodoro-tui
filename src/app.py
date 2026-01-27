@@ -50,8 +50,7 @@ class PomodoroApp(App):
     """Main Pomodoro TUI application."""
 
     # Base CSS for layout structure
-    # Will be combined with theme CSS at runtime
-    BASE_CSS = """
+    CSS = """
     Screen {
         align: center middle;
     }
@@ -117,8 +116,8 @@ class PomodoroApp(App):
     }
     """
 
-    # CSS property will be set dynamically with BASE_CSS + theme CSS
-    CSS = BASE_CSS
+    # CSS_PATH will be set dynamically to load theme files
+    CSS_PATH = None
 
     BINDINGS = [
         Binding("space", "toggle_timer", "Start/Pause", priority=True),
@@ -159,12 +158,11 @@ class PomodoroApp(App):
         self.timer.on("break_complete", self._on_break_complete)
         self.timer.on("cycle_complete", self._on_cycle_complete)
 
-        # Load initial theme CSS
+        # Load initial theme by setting CSS_PATH
         theme_id = self.config.get("appearance", "theme", "pomodoro-default")
-        theme_css = self.theme_manager.load_theme(theme_id)
-        if theme_css:
-            # Combine BASE_CSS with theme CSS before app starts
-            self.__class__.CSS = self.BASE_CSS + "\n\n" + theme_css
+        theme_path = self.theme_manager.get_theme_path(theme_id)
+        if theme_path:
+            self.__class__.CSS_PATH = str(theme_path)
             self.theme_manager.set_current_theme(theme_id)
             self._initial_theme_loaded = True
 
@@ -347,21 +345,22 @@ class PomodoroApp(App):
             theme_id: ID of the theme to load
         """
         try:
-            # Load the theme CSS content
-            theme_css = self.theme_manager.load_theme(theme_id)
-            if not theme_css:
-                self.notify(f"Failed to load theme: {theme_id}", severity="error")
+            # Get the theme file path
+            theme_path = self.theme_manager.get_theme_path(theme_id)
+            if not theme_path:
+                self.notify(f"Theme not found: {theme_id}", severity="error")
                 return
 
-            # Update the app's CSS class variable
-            combined_css = self.BASE_CSS + "\n\n" + theme_css
-            self.__class__.CSS = combined_css
-
-            # The key to making this work: refresh_css() reloads from the CSS class variable
+            # Update CSS_PATH and reload CSS
+            self.__class__.CSS_PATH = str(theme_path)
             self.refresh_css(animate=False)
 
             # Update theme manager state
             self.theme_manager.set_current_theme(theme_id)
+
+            # Save to config
+            self.config.set("appearance", "theme", theme_id)
+            self.config.save()
 
             # Show notification
             self.notify(
@@ -382,10 +381,6 @@ class PomodoroApp(App):
             theme_id: ID of the theme to switch to
         """
         self._load_theme(theme_id)
-
-        # Save to config
-        self.config.set("appearance", "theme", theme_id)
-        self.config.save()
 
     def action_toggle_theme_picker(self) -> None:
         """Open the theme picker."""
