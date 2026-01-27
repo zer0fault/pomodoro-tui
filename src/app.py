@@ -366,9 +366,24 @@ class PomodoroApp(App):
         def handle_settings_result(saved: bool) -> None:
             """Handle settings panel result."""
             if saved:
-                self.notify("Settings saved", severity="information")
+                # Reload timer settings
+                self._reload_timer_settings()
+                self.notify("Settings saved - will apply to next session", severity="information")
 
         self.push_screen(SettingsPanel(), handle_settings_result)
+
+    def _reload_timer_settings(self) -> None:
+        """Reload timer settings from config."""
+        work_duration = self.config.get("timer", "work_duration", 25)
+        short_break = self.config.get("timer", "short_break_duration", 5)
+        long_break = self.config.get("timer", "long_break_duration", 15)
+        pomodoros_until_long = self.config.get("timer", "pomodoros_until_long_break", 4)
+
+        # Update timer with new settings
+        self.timer.work_duration = work_duration
+        self.timer.short_break_duration = short_break
+        self.timer.long_break_duration = long_break
+        self.timer.pomodoros_until_long_break = pomodoros_until_long
 
     def action_quit(self) -> None:
         """Quit the application."""
