@@ -19,6 +19,7 @@ class PomodoroProgressBar(ProgressBar):
         """Initialize the progress bar."""
         super().__init__(*args, **kwargs)
         self.total = 100
+        self.show_percentage = False  # Hide percentage text to avoid duplication with timer
 
     def watch_progress_value(self, new_value: float) -> None:
         """Called when progress_value changes."""

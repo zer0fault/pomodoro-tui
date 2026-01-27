@@ -266,8 +266,10 @@ class PomodoroApp(App):
     # Timer callback methods
     def _on_timer_tick(self, remaining_seconds: int) -> None:
         """Called every second when timer ticks."""
-        self._update_timer_display()
-        self._update_progress_bar()
+        # Only update if not paused (should not receive ticks when paused, but double-check)
+        if self.timer.get_state() != TimerState.PAUSED:
+            self._update_timer_display()
+            self._update_progress_bar()
 
     def _on_state_change(self, old_state: TimerState, new_state: TimerState) -> None:
         """Called when timer state changes."""
