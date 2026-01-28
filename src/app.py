@@ -15,6 +15,7 @@ from src.audio import get_audio_manager
 from src.components.timer_display import TimerDisplay
 from src.components.theme_picker import ThemePicker
 from src.components.settings_panel import SettingsPanel
+from src.components.help_screen import HelpScreen
 from src.theme_manager import get_theme_manager
 from src.utils.constants import (
     APP_NAME,
@@ -364,7 +365,7 @@ class PomodoroApp(App):
 
     def action_help(self) -> None:
         """Show help screen."""
-        self.notify("Help screen coming in Phase 9!", severity="information")
+        self.push_screen(HelpScreen())
 
     def action_config(self) -> None:
         """Open configuration/settings."""
