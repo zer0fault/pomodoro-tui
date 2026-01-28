@@ -4,7 +4,7 @@ Settings panel for configuring timer and appearance options.
 from textual.app import ComposeResult
 from textual.screen import ModalScreen
 from textual.containers import Container, Vertical, Horizontal
-from textual.widgets import Static, Button, Label, Input
+from textual.widgets import Static, Button, Label, Input, Checkbox
 from textual.binding import Binding
 from src.config import get_config
 from src.utils.constants import (
@@ -93,6 +93,7 @@ class SettingsPanel(ModalScreen[bool]):
         self.short_break = self.config.get("timer", "short_break_duration", 5)
         self.long_break = self.config.get("timer", "long_break_duration", 15)
         self.pomodoros_until_long = self.config.get("timer", "pomodoros_until_long_break", 4)
+        self.audio_enabled = self.config.get("audio", "enabled", True)
 
     def compose(self) -> ComposeResult:
         """Create child widgets for settings panel."""
@@ -147,6 +148,14 @@ class SettingsPanel(ModalScreen[bool]):
                     )
                     yield Static(f"[dim]({MIN_POMODOROS_UNTIL_LONG_BREAK}-{MAX_POMODOROS_UNTIL_LONG_BREAK})[/dim]", classes="setting-hint")
 
+            # Audio Settings Section
+            with Vertical(classes="settings-section"):
+                yield Label("Audio Settings", classes="section-title")
+
+                # Audio enabled checkbox
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox("Enable audio notifications", id="checkbox-audio", value=self.audio_enabled)
+
             # Buttons
             with Horizontal(id="settings-buttons"):
                 yield Button("Save", id="btn-save", variant="success")
@@ -196,11 +205,16 @@ class SettingsPanel(ModalScreen[bool]):
                 self.app.notify(f"Pomodoros must be {MIN_POMODOROS_UNTIL_LONG_BREAK}-{MAX_POMODOROS_UNTIL_LONG_BREAK}", severity="error")
                 return False
 
+            # Get audio settings
+            audio_checkbox = self.query_one("#checkbox-audio", Checkbox)
+            audio_enabled = audio_checkbox.value
+
             # Save to config
             self.config.set("timer", "work_duration", work_duration)
             self.config.set("timer", "short_break_duration", short_break)
             self.config.set("timer", "long_break_duration", long_break)
             self.config.set("timer", "pomodoros_until_long_break", pomodoros)
+            self.config.set("audio", "enabled", audio_enabled)
             self.config.save()
 
             return True

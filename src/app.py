@@ -371,8 +371,9 @@ class PomodoroApp(App):
         def handle_settings_result(saved: bool) -> None:
             """Handle settings panel result."""
             if saved:
-                # Reload timer settings
+                # Reload timer and audio settings
                 self._reload_timer_settings()
+                self._reload_audio_settings()
                 self.notify("Settings saved - will apply to next session", severity="information")
 
         self.push_screen(SettingsPanel(), handle_settings_result)
@@ -389,6 +390,11 @@ class PomodoroApp(App):
         self.timer.short_break_duration = minutes_to_seconds(short_break)
         self.timer.long_break_duration = minutes_to_seconds(long_break)
         self.timer.pomodoros_until_long_break = pomodoros_until_long
+
+    def _reload_audio_settings(self) -> None:
+        """Reload audio settings from config."""
+        audio_enabled = self.config.get("audio", "enabled", True)
+        self.audio_manager.set_enabled(audio_enabled)
 
     def action_quit(self) -> None:
         """Quit the application."""
