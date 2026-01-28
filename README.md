@@ -101,7 +101,7 @@ The timer uses color-coded borders for instant visual feedback:
 
 ## 📝 License
 
-MIT License - See LICENSE file for details
+GNU GENERAL PUBLIC LICENSE - See [License](LICENSE) file for details
 
 ## 🙏 Acknowledgments
 
