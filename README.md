@@ -67,8 +67,6 @@ Settings are stored in `~/.pomodoro-tui/config.toml` and can be modified through
 Adjust work sessions, breaks, and cycle length:
 - **Work Duration**: 15-45 minutes (default: 25)
 - **Short Break**: 3-10 minutes (default: 5)
-- **Long Break**: 10-30 minutes (default: 15)
-- **Pomodoros Until Long Break**: 2-6 (default: 4)
 
 ### Audio
 
