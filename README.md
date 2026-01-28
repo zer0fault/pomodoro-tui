@@ -2,6 +2,8 @@
 
 A minimalistic terminal-based Pomodoro timer for Windows, built with Python and Textual.
 
+![Pomodoro TUI Application](src/imgs/app_screen.png)
+
 ## ✨ Features
 
 - **Traditional Pomodoro Timer**: 25-5-15 minute cycles (fully customizable)
@@ -80,6 +82,8 @@ Switch themes on-the-fly with the **T** key:
 - **Nord** - Cool professional blue theme
 - **Gruvbox** - Warm retro theme
 - **Tokyo Night** - Modern neon theme
+
+![Available Themes](src/imgs/themes.png)
 
 ## 🎨 Visual Design
 
