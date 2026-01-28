@@ -62,3 +62,11 @@ Thumbs.db
 *.tmp
 *.bak
 *.swp
+
+# Debug and development files
+debug_*.py
+diagnose.py
+Agent_Debug/
+*_SUMMARY.md
+IMPLEMENTATION_PLAN.md
+TESTING.md
